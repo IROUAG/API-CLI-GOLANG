@@ -114,8 +114,8 @@ func groupsDelete(c *gin.Context) {
 // Fonction pour auth
 
 func authJWT(c *gin.Context) {
-	yourHtmlString := "AJOUT AUTHENTIFICATION"
+	messageHTML := "AJOUT AUTHENTIFICATION"
 	c.Writer.WriteHeader(http.StatusOK)
-	c.Writer.Write([]byte(yourHtmlString))
+	c.Writer.Write([]byte(messageHTML))
 	return
 }
