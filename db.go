@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func main() {
+func mainè() {
 
 	dsn := "host=localhost user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Europe/Paris"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
