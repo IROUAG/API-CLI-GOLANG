@@ -99,6 +99,8 @@ func main() {
 		groupRoutes.DELETE("/:id", deleteGroup)
 	}
 
+	// r.POST("/auth", authenticateUser)
+
 	// Start the server
 	r.Run(":8080")
 
@@ -314,3 +316,5 @@ func deleteGroup(c *gin.Context) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// function authentification utilisateur grace à jwt
