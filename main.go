@@ -1,99 +1,75 @@
 package main
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Bibliotheque utilisé
-
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"github.com/jinzhu/gorm"
+
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Initialisation objets
 type User struct {
-	ID         uint           `gorm:"primaryKey" json:"id"`
-	Name       string         `json:"name"`
-	Email      string         `json:"email"`
-	Password   string         `json:"-"`
-	Roles      []Role         `json:"roles" gorm:"many2many:user_roles;"`
-	Groups     []Group        `json:"groups" gorm:"many2many:user_groups;"`
-	CreatedAt  time.Time      `json:"created_at"`
-	UpdatedAt  time.Time      `json:"updated_at"`
-	DeletedAt  gorm.DeletedAt `gorm:"index" json:"-"`
-	AuthTokens []AuthToken    `json:"-"`
-}
-
-type Role struct {
-	ID          uint           `gorm:"primaryKey" json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
-}
-
-type Group struct {
-	ID            uint           `gorm:"primaryKey" json:"id"`
-	Name          string         `json:"name"`
-	ParentGroup   *Group         `json:"parent_group" gorm:"foreignKey:ParentGroupID"`
-	ParentGroupID *uint          `json:"-"`
-	ChildGroups   []*Group       `json:"child_groups" gorm:"foreignKey:ParentGroupID"`
-	CreatedAt     time.Time      `json:"created_at"`
-	UpdatedAt     time.Time      `json:"updated_at"`
-	DeletedAt     gorm.DeletedAt `gorm:"index" json:"-"`
+	ID         uint        `gorm:"primary_key" json:"id"`
+	Name       string      `json:"name"`
+	Email      string      `json:"email"`
+	Password   string      `json:"-"`
+	Roles      []Role      `gorm:"many2many:user_roles;" json:"roles"`
+	Groups     []Group     `gorm:"many2many:user_groups;" json:"groups"`
+	CreatedAt  int64       `json:"created_at"`
+	UpdatedAt  int64       `json:"updated_at"`
+	DeletedAt  int64       `json:"deleted_at"`
+	AuthTokens []AuthToken `json:"auth_tokens"`
 }
 
 type AuthToken struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	Token     string    `json:"token"`
-	ExpiresAt time.Time `json:"expires_at"`
+	ID        uint   `gorm:"primary_key" json:"id"`
+	Token     string `json:"token"`
+	ExpiresAt int64  `json:"expires_at"`
 }
 
 type RefreshToken struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	Token     string    `json:"token"`
-	ExpiresAt time.Time `json:"expires_at"`
+	ID        uint   `gorm:"primary_key" json:"id"`
+	Token     string `json:"token"`
+	ExpiresAt int64  `json:"expires_at"`
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Database
-type Database struct {
-	*gorm.DB
+type Role struct {
+	ID          uint   `gorm:"primary_key" json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	CreatedAt   int64  `json:"created_at"`
+	UpdatedAt   int64  `json:"updated_at"`
+	DeletedAt   int64  `json:"deleted_at"`
 }
 
-func (db *Database) AutoMigrate() {
-	db.AutoMigrate(&User{})
-	db.AutoMigrate(&AuthToken{})
-	db.AutoMigrate(&RefreshToken{})
-	db.AutoMigrate(&Role{})
-	db.AutoMigrate(&Group{})
+type Group struct {
+	ID            uint   `gorm:"primary_key" json:"id"`
+	Name          string `json:"name"`
+	ParentGroupID uint   `json:"parent_group_id"`
+	ChildGroupIDs []uint `gorm:"-" json:"child_group_ids"`
+	CreatedAt     int64  `json:"created_at"`
+	UpdatedAt     int64  `json:"updated_at"`
+	DeletedAt     int64  `json:"deleted_at"`
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// initialisation web server et routes
+var db *gorm.DB
 
 func main() {
+	// Connect to the PostgreSQL database
+	var err error
+	db, err = gorm.Open("postgres", "host=localhost user=myuser dbname=mydb sslmode=disable password=mypassword")
+	if err != nil {
+		panic("failed to connect database")
+	}
+	defer db.Close()
 
-	// Initialisation de l'API
+	// Migrate the schema
+	db.AutoMigrate(&User{}, &AuthToken{}, &RefreshToken{}, &Role{}, &Group{})
+
+	// Set up Gin router
 	r := gin.Default()
 
-	// Initialize the database
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
-	if err != nil {
-		panic("Failed to connect to database!")
-	}
-	database := &Database{db}
-	database.AutoMigrate()
-
-	// User endpoints
 	userRoutes := r.Group("/users")
 	{
 		userRoutes.GET("/", getUserList)
@@ -289,6 +265,20 @@ func getGroup(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, group)
+}
+
+// createGroup crée un nouveau rôle
+func createGroup(c *gin.Context) {
+	var group Group
+	if err := c.BindJSON(&group); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON provided"})
+		return
+	}
+	if err := db.Create(&group).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create group"})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"data": group})
 }
 
 // updateGroup met à jour un groupe existant
