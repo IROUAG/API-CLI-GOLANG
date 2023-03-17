@@ -10,29 +10,29 @@ import (
 )
 
 type User struct {
-	ID         uint        `gorm:"primary_key" json:"id"`
-	Name       string      `json:"name"`
-	Email      string      `json:"email"`
-	Password   string      `json:"-"`
-	Roles      []Role      `gorm:"many2many:user_roles;" json:"roles"`
-	Groups     []Group     `gorm:"many2many:user_groups;" json:"groups"`
-	CreatedAt  int64       `json:"created_at"`
-	UpdatedAt  int64       `json:"updated_at"`
-	DeletedAt  int64       `json:"deleted_at"`
-	AuthTokens []AuthToken `json:"auth_tokens"`
+	ID        uint    `gorm:"primary_key" json:"id"`
+	Name      string  `json:"name"`
+	Email     string  `json:"email"`
+	Password  string  `json:"-"`
+	Roles     []Role  `gorm:"many2many:user_roles;" json:"roles"`
+	Groups    []Group `gorm:"many2many:user_groups;" json:"groups"`
+	CreatedAt int64   `json:"created_at"`
+	UpdatedAt int64   `json:"updated_at"`
+	DeletedAt int64   `json:"deleted_at"`
+	// AuthTokens []AuthToken `json:"auth_tokens"`
 }
 
-type AuthToken struct {
-	ID        uint   `gorm:"primary_key" json:"id"`
-	Token     string `json:"token"`
-	ExpiresAt int64  `json:"expires_at"`
-}
+// type AuthToken struct {
+// 	ID        uint   `gorm:"primary_key" json:"id"`
+// 	Token     string `json:"token"`
+// 	ExpiresAt int64  `json:"expires_at"`
+// }
 
-type RefreshToken struct {
-	ID        uint   `gorm:"primary_key" json:"id"`
-	Token     string `json:"token"`
-	ExpiresAt int64  `json:"expires_at"`
-}
+// type RefreshToken struct {
+// 	ID        uint   `gorm:"primary_key" json:"id"`
+// 	Token     string `json:"token"`
+// 	ExpiresAt int64  `json:"expires_at"`
+// }
 
 type Role struct {
 	ID          uint   `gorm:"primary_key" json:"id"`
@@ -65,7 +65,7 @@ func main() {
 	defer db.Close()
 
 	// Migrate the schema
-	db.AutoMigrate(&User{}, &AuthToken{}, &RefreshToken{}, &Role{}, &Group{})
+	// db.AutoMigrate(&User{}, &AuthToken{}, &RefreshToken{}, &Role{}, &Group{})
 
 	// Set up Gin router
 	r := gin.Default()
@@ -316,5 +316,3 @@ func deleteGroup(c *gin.Context) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// function authentification utilisateur grace à jwt
