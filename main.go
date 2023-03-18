@@ -11,28 +11,15 @@ import (
 
 type User struct {
 	ID        uint    `gorm:"primary_key" json:"id"`
-	Name      string  `json:"name"`
+	Username  string  `json:"name"`
 	Email     string  `json:"email"`
-	Password  string  `json:"-"`
+	Password  string  `json:"password"`
 	Roles     []Role  `gorm:"many2many:user_roles;" json:"roles"`
 	Groups    []Group `gorm:"many2many:user_groups;" json:"groups"`
 	CreatedAt int64   `json:"created_at"`
 	UpdatedAt int64   `json:"updated_at"`
 	DeletedAt int64   `json:"deleted_at"`
-	// AuthTokens []AuthToken `json:"auth_tokens"`
 }
-
-// type AuthToken struct {
-// 	ID        uint   `gorm:"primary_key" json:"id"`
-// 	Token     string `json:"token"`
-// 	ExpiresAt int64  `json:"expires_at"`
-// }
-
-// type RefreshToken struct {
-// 	ID        uint   `gorm:"primary_key" json:"id"`
-// 	Token     string `json:"token"`
-// 	ExpiresAt int64  `json:"expires_at"`
-// }
 
 type Role struct {
 	ID          uint   `gorm:"primary_key" json:"id"`
@@ -57,13 +44,13 @@ var db *gorm.DB
 
 func main() {
 	// Connect to the PostgreSQL database
-	var err error
+	/*var err error
 	db, err = gorm.Open("postgres", "host=localhost user=myuser dbname=mydb sslmode=disable password=mypassword")
 	if err != nil {
 		panic("failed to connect database")
 	}
 	defer db.Close()
-
+	*/
 	// Migrate the schema
 	// db.AutoMigrate(&User{}, &AuthToken{}, &RefreshToken{}, &Role{}, &Group{})
 
@@ -314,5 +301,3 @@ func deleteGroup(c *gin.Context) {
 	}
 	c.Status(http.StatusNoContent)
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
