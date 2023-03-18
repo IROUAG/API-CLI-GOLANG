@@ -132,7 +132,6 @@ func main() {
 		groupRoutes.DELETE("/:id", deleteGroup)
 	}
 
-
 	// Start the server
 	r.Run(":8080")
 
