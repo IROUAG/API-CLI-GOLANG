@@ -97,8 +97,8 @@ func signUp(c *gin.Context) {
 }
 
 func main() {
-	//connectDB()
-	//db.AutoMigrate(&User{})
+	connectDB()
+	db.AutoMigrate(&User{})
 
 	r := gin.Default()
 	r.POST("/signup", signUp)
