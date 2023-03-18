@@ -97,8 +97,8 @@ func signUp(c *gin.Context) {
 }
 
 func main() {
-	connectDB()
-	db.AutoMigrate(&User{})
+	//connectDB()
+	//db.AutoMigrate(&User{})
 
 	r := gin.Default()
 	r.POST("/signup", signUp)
@@ -132,7 +132,6 @@ func main() {
 		groupRoutes.DELETE("/:id", deleteGroup)
 	}
 
-	// r.POST("/auth", authenticateUser)
 
 	// Start the server
 	r.Run(":8080")
