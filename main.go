@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -54,13 +55,53 @@ func connectDB() {
 
 }
 
+func signUp(c *gin.Context) {
+
+	// get email/password du request body
+
+	var body struct {
+		Email    string
+		Password string
+	}
+
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body",
+		})
+		return
+	}
+
+	// hash password
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body",
+		})
+		return
+	}
+
+	// creation user
+
+	user := User{Email: body.Email, Password: string(hash)}
+	result := db.Create(&user)
+
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+}
+
 func main() {
+	connectDB()
+	db.AutoMigrate(&User{})
 
 	r := gin.Default()
-
-	connectDB()
-
-	db.AutoMigrate(&User{})
+	r.POST("/signup", signUp)
 
 	userRoutes := r.Group("/users")
 	{
