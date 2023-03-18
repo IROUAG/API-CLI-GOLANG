@@ -7,7 +7,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-
 type User struct {
 	gorm.Model
 	ID        uint    `gorm:"primary_key" json:"id"`
@@ -20,7 +19,6 @@ type User struct {
 	UpdatedAt int64   `json:"updated_at"`
 	DeletedAt int64   `json:"deleted_at"`
 }
-
 
 type Role struct {
 	ID          uint   `gorm:"primary_key" json:"id"`
@@ -59,6 +57,10 @@ func connectDB() {
 func main() {
 
 	r := gin.Default()
+
+	connectDB()
+
+	db.AutoMigrate(&User{})
 
 	userRoutes := r.Group("/users")
 	{
