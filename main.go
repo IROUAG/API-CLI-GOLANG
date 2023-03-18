@@ -58,6 +58,8 @@ func connectDB() {
 
 }
 
+// Fonctions pour auth JWT (signUp + Login)
+
 func signUp(c *gin.Context) {
 
 	// get email/password du request body
@@ -159,7 +161,6 @@ func login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{})
 
 }
-
 
 func main() {
 	connectDB()
