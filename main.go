@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -25,6 +26,7 @@ type User struct {
 }
 
 type Role struct {
+	gorm.Model
 	ID          uint   `gorm:"primary_key" json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -34,6 +36,7 @@ type Role struct {
 }
 
 type Group struct {
+	gorm.Model
 	ID            uint   `gorm:"primary_key" json:"id"`
 	Name          string `json:"name"`
 	ParentGroupID uint   `json:"parent_group_id"`
@@ -121,7 +124,7 @@ func login(c *gin.Context) {
 	if user.ID == 0 {
 
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid email or password",
+			"error": "Email ou mot de passe invalide",
 		})
 		return
 	}
@@ -131,7 +134,7 @@ func login(c *gin.Context) {
 	if err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid email or password",
+			"error": "Email ou mot de passe invalide",
 		})
 		return
 	}
@@ -162,6 +165,57 @@ func login(c *gin.Context) {
 
 }
 
+// message de confirmation de connexion
+func validation(c *gin.Context) {
+	user, _ := c.Get("user")
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Vous êtes connecté",
+		"username": user,
+	})
+
+}
+
+func requireAuth(c *gin.Context) {
+
+	tokenString, err := c.Cookie("Authorization")
+	if err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+
+	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+
+		}
+
+		return []byte(os.Getenv("SECRET")), nil
+
+	})
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+
+		if float64(time.Now().Unix()) > claims["exp"].(float64) {
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
+
+		var user User
+		db.First(&user, claims["sub"])
+
+		if user.ID == 0 {
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
+
+		c.Set("user", user)
+
+		c.Next()
+
+	} else {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+
+}
+
 func main() {
 	connectDB()
 	db.AutoMigrate(&User{})
@@ -169,6 +223,7 @@ func main() {
 	r := gin.Default()
 	r.POST("/signup", signUp)
 	r.POST("/login", login)
+	r.GET("/validate", requireAuth, validation)
 
 	userRoutes := r.Group("/users")
 	{
