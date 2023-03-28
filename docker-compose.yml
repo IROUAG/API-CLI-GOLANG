@@ -13,8 +13,10 @@ services:
       - .env
   db:
     image: postgres
-    env_file:
-      - .env
+    environment:
+    - POSTGRES_USER=myuser
+    - POSTGRES_DB=mydb
+    - POSTGRES_PASSWORD=mypassword
     volumes:
       - db_data:/var/lib/postgresql/data
 
