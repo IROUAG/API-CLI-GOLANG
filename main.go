@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -56,9 +57,16 @@ type Group struct {
 var db *gorm.DB
 
 func main() {
+
+	// environment variables
+	dbHost := os.Getenv("DB_HOST")
+	dbUser := os.Getenv("DB_USER")
+	dbName := os.Getenv("DB_NAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
+
 	// Connect to the PostgreSQL database
 	var err error
-	db, err = gorm.Open("postgres", "host=localhost user=myuser dbname=mydb sslmode=disable password=mypassword")
+	db, err = gorm.Open("postgres", "host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, dbUser, dbName, dbPassword)
 	if err != nil {
 		panic("failed to connect database")
 	}
