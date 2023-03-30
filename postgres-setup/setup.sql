@@ -101,11 +101,3 @@ INSERT INTO user_groups (user_id, group_id) VALUES
 (2, 2),
 (2, 4);
 
--- Vérification des données insérées
-SELECT * FROM users;
-SELECT * FROM roles;
-SELECT * FROM groups;
-SELECT * FROM auth_tokens;
-SELECT * FROM refresh_tokens;
-SELECT * FROM user_roles;
-SELECT * FROM user_groups;
