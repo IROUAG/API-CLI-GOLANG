@@ -68,10 +68,11 @@ func main() {
 	// environment variables
 	dbUser := os.Getenv("POSTGRES_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("POSTGRES_DB")
 
 	// Connect to the PostgreSQL database
 	var err error
-	connStr := fmt.Sprintf("user=%s sslmode=disable password=%s", dbUser, dbPassword)
+	connStr := fmt.Sprintf("user=%s sslmode=disable password=%s dbname=%s", dbUser, dbPassword, dbname)
 	db, err = gorm.Open("postgres", connStr)
 
 	if err != nil {

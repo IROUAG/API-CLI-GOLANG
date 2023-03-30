@@ -24,7 +24,7 @@ cd golang_project_ilies_sylvain
 2. Construisez et exécutez l'application en utilisant Docker Compose :
 
 ```bash
-docker-compose up --build
+docker-compose up -d --build
 ```
 
 Cette commande construira les conteneurs de l'application Go et de PostgreSQL et les exécutera ensemble. Votre application sera accessible à l'adresse http://localhost:8080.
