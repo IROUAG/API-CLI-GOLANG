@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/joho/godotenv"
 )
 
 type User struct {
@@ -57,6 +57,13 @@ type Group struct {
 var db *gorm.DB
 
 func main() {
+
+	// Load the .env file
+	err1 := godotenv.Load()
+	if err1 != nil {
+		panic("Error loading .env file")
+	}
+
 	// environment variables
 	dbHost := os.Getenv("DB_HOST")
 	dbUser := os.Getenv("DB_USER")
