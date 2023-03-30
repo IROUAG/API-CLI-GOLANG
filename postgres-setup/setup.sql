@@ -1,3 +1,5 @@
+CREATE DATABASE mydatabase;
+
 -- Create the tables
 CREATE TABLE users (
   id INT PRIMARY KEY AUTO_INCREMENT,
