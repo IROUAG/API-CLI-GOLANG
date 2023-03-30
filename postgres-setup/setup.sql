@@ -66,20 +66,35 @@ CREATE TABLE user_groups (
     FOREIGN KEY (group_id) REFERENCES groups(id)
 );
 
--- Insertion de données d'exemple
-INSERT INTO users (name, email, password) VALUES
-('Alice', 'alice@example.com', 'password1'),
-('Bob', 'bob@example.com', 'password2');
+-- Insert sample data into the roles table
+INSERT INTO roles (name, description, created_at) VALUES
+('Admin', 'Administrator with full access', NOW()),
+('Editor', 'Can edit and manage content', NOW()),
+('Viewer', 'Can view content only', NOW());
 
-INSERT INTO roles (name, description) VALUES
-('Admin', 'Administrateur'),
-('User', 'Utilisateur standard');
+-- Insert sample data into the groups table
+INSERT INTO groups (name, parent_group_id, child_group_ids, created_at) VALUES
+('Management', NULL, NULL, NOW()),
+('Marketing', NULL, NULL, NOW()),
+('Sales', NULL, NULL, NOW());
 
-INSERT INTO groups (name, parent_group_id) VALUES
-('Groupe A', NULL),
-('Groupe B', NULL),
-('Groupe A1', 1),
-('Groupe B1', 2);
+-- Insert sample data into the users table
+INSERT INTO users (name, email, password, created_at) VALUES
+('Alice', 'alice@example.com', 'alice_password', NOW()),
+('Bob', 'bob@example.com', 'bob_password', NOW()),
+('Carol', 'carol@example.com', 'carol_password', NOW());
+
+
+INSERT INTO user_roles (user_id, role_id) VALUES
+(1, 1), -- Alice has the Admin role
+(2, 2), -- Bob has the Editor role
+(3, 3); -- Carol has the Viewer role
+
+-- Add user-group relationships
+INSERT INTO user_groups (user_id, group_id) VALUES
+(1, 1), -- Alice is in the Management group
+(2, 2), -- Bob is in the Marketing group
+(3, 3); -- Carol is in the Sales group
 
 INSERT INTO auth_tokens (user_id, token, expires_at) VALUES
 (1, 'token1', '2023-04-30 00:00:00'),
@@ -88,14 +103,3 @@ INSERT INTO auth_tokens (user_id, token, expires_at) VALUES
 INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES
 (1, 'refreshtoken1', '2023-06-30 00:00:00'),
 (2, 'refreshtoken2', '2023-06-30 00:00:00');
-
-INSERT INTO user_roles (user_id, role_id) VALUES
-(1, 1),
-(1, 2),
-(2, 2);
-
-INSERT INTO user_groups (user_id, group_id) VALUES
-(1, 3),
-(2, 2),
-(2, 4);
-
