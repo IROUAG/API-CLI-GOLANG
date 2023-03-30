@@ -66,6 +66,12 @@ CREATE TABLE user_groups (
     FOREIGN KEY (group_id) REFERENCES groups(id)
 );
 
+-- Insert sample data into the users table
+INSERT INTO users (name, email, password, created_at) VALUES
+('Alice', 'alice@example.com', 'alice_password', NOW()),
+('Bob', 'bob@example.com', 'bob_password', NOW()),
+('Carol', 'carol@example.com', 'carol_password', NOW());
+
 -- Insert sample data into the roles table
 INSERT INTO roles (name, description, created_at) VALUES
 ('Admin', 'Administrator with full access', NOW()),
@@ -73,17 +79,10 @@ INSERT INTO roles (name, description, created_at) VALUES
 ('Viewer', 'Can view content only', NOW());
 
 -- Insert sample data into the groups table
-INSERT INTO groups (name, parent_group_id, child_group_ids, created_at) VALUES
-('Management', NULL, NULL, NOW()),
-('Marketing', NULL, NULL, NOW()),
-('Sales', NULL, NULL, NOW());
-
--- Insert sample data into the users table
-INSERT INTO users (name, email, password, created_at) VALUES
-('Alice', 'alice@example.com', 'alice_password', NOW()),
-('Bob', 'bob@example.com', 'bob_password', NOW()),
-('Carol', 'carol@example.com', 'carol_password', NOW());
-
+INSERT INTO groups (name, parent_group_id, created_at) VALUES
+    ('Management', NULL, NOW()),
+    ('Marketing', NULL, NOW()),
+    ('Sales', NULL, NOW());
 
 INSERT INTO user_roles (user_id, role_id) VALUES
 (1, 1), -- Alice has the Admin role
