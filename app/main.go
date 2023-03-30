@@ -74,9 +74,11 @@ func main() {
 	var err error
 	connStr := fmt.Sprintf("host=%s user=%s sslmode=disable password=%s", dbHost, dbUser, dbPassword)
 	db, err = gorm.Open("postgres", connStr)
+
 	if err != nil {
-		panic("failed to connect database")
+		panic(fmt.Sprintf("failed to connect database: %v", err))
 	}
+
 	defer db.Close()
 
 	// Migrate the schema
