@@ -1,5 +1,5 @@
 
--- to create the database : psql -h localhost -U myuser -d mydb -f BDD_generator.sql
+-- to create the database : psql -h localhost -U myuser -d mydb -f setup.sql
 
 -- Create the tables
 CREATE TABLE users (
