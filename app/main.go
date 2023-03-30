@@ -66,7 +66,6 @@ func main() {
 	}
 
 	// environment variables
-	//dbHost := os.Getenv("POSTGRES_DB")
 	dbUser := os.Getenv("POSTGRES_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
 
