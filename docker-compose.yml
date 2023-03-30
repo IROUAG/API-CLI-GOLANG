@@ -15,6 +15,7 @@ services:
       - .env
 
   db:
+    container_name: db
     build: ./postgres-setup
     env_file:
       - .env
