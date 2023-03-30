@@ -1,7 +1,6 @@
 # docker-compose up -d --build
 
 version: '3.8'
-
 services:
   app:
     build: ./app
@@ -9,7 +8,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     links:
       - db
     env_file:
@@ -23,6 +23,11 @@ services:
       - .env
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   db_data:
