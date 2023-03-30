@@ -13,7 +13,7 @@ services:
 
   db:
     build: ./postgres-setup
-    environment:
+    env_file:
       - .env
     volumes:
       - db_data:/var/lib/postgresql/data
