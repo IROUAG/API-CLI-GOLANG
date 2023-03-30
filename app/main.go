@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -12,50 +13,48 @@ import (
 )
 
 type User struct {
-	ID         uint        `gorm:"primary_key" json:"id"`
-	Name       string      `json:"name"`
-	Email      string      `json:"email"`
-	Password   string      `json:"-"`
-	Roles      []Role      `gorm:"many2many:user_roles;" json:"roles"`
-	Groups     []Group     `gorm:"many2many:user_groups;" json:"groups"`
-	CreatedAt  int64       `json:"created_at"`
-	UpdatedAt  int64       `json:"updated_at"`
-	DeletedAt  int64       `json:"deleted_at"`
-	AuthTokens []AuthToken `json:"auth_tokens"`
+	ID        uint       `gorm:"primary_key" json:"id"`
+	Name      string     `json:"name"`
+	Email     string     `gorm:"unique" json:"email"`
+	Password  string     `json:"-"`
+	Roles     []Role     `gorm:"many2many:user_roles;" json:"roles"`
+	Groups    []Group    `gorm:"many2many:user_groups;" json:"groups"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 type AuthToken struct {
-	ID        uint   `gorm:"primary_key" json:"id"`
-	Token     string `json:"token"`
-	ExpiresAt int64  `json:"expires_at"`
+	ID        uint      `gorm:"primary_key" json:"id"`
+	Token     string    `json:"token"`
+	ExpiresAt time.Time `json:"expires_at"`
+	UserID    uint      `json:"-"`
 }
 
 type RefreshToken struct {
-	ID        uint   `gorm:"primary_key" json:"id"`
-	Token     string `json:"token"`
-	ExpiresAt int64  `json:"expires_at"`
+	ID        uint      `gorm:"primary_key" json:"id"`
+	Token     string    `json:"token"`
+	ExpiresAt time.Time `json:"expires_at"`
+	UserID    uint      `json:"-"`
 }
 
 type Role struct {
-	ID          uint   `gorm:"primary_key" json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	CreatedAt   int64  `json:"created_at"`
-	UpdatedAt   int64  `json:"updated_at"`
-	DeletedAt   int64  `json:"deleted_at"`
+	ID          uint       `gorm:"primary_key" json:"id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+	DeletedAt   *time.Time `json:"deleted_at"`
 }
 
 type Group struct {
-	ID            uint   `gorm:"primary_key" json:"id"`
-	Name          string `json:"name"`
-	ParentGroupID uint   `json:"parent_group_id"`
-	ChildGroupIDs []uint `gorm:"-" json:"child_group_ids"`
-	CreatedAt     int64  `json:"created_at"`
-	UpdatedAt     int64  `json:"updated_at"`
-	DeletedAt     int64  `json:"deleted_at"`
+	ID            uint       `gorm:"primary_key" json:"id"`
+	Name          string     `json:"name"`
+	ParentGroupID *uint      `json:"parent_group_id"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
+	DeletedAt     *time.Time `json:"deleted_at"`
 }
-
-var db *gorm.DB
 
 func main() {
 
@@ -77,50 +76,45 @@ func main() {
 	db, err := gorm.Open("postgres", connStr)
 
 	if err != nil {
-		panic(fmt.Sprintf("failed to connect database: %v", err))
+		panic(fmt.Sprintf("failed to connect to the database: %v", err))
 	}
-
 	defer db.Close()
 
 	// Migrate the schema
 	db.AutoMigrate(&User{}, &AuthToken{}, &RefreshToken{}, &Role{}, &Group{})
 
 	// Set up Gin router
-	r := gin.Default()
+	router := gin.Default()
 
-	userRoutes := r.Group("/users")
+	// user endpoints
+	users := router.Group("/users")
 	{
-		userRoutes.GET("/", getUserList)
-		userRoutes.GET("/:id", getUser)
-		userRoutes.POST("/", createUser)
-		userRoutes.PUT("/:id", updateUser)
-		userRoutes.DELETE("/:id", deleteUser)
+		users.GET("/", getUsers(db))
+		users.POST("/", createUser(db))
+		users.PUT("/:id", updateUser(db))
+		users.DELETE("/:id", deleteUser(db))
 	}
 
 	// Role endpoints
-	roleRoutes := r.Group("/roles")
+	roles := router.Group("/roles")
 	{
-		roleRoutes.GET("/", getRoleList)
-		roleRoutes.GET("/:id", getRole)
-		roleRoutes.POST("/", createRole)
-		roleRoutes.PUT("/:id", updateRole)
-		roleRoutes.DELETE("/:id", deleteRole)
+		roles.GET("/", getRoles(db))
+		roles.POST("/", createRole(db))
+		roles.PUT("/:id", updateRole(db))
+		roles.DELETE("/:id", deleteRole(db))
 	}
 
 	// Group endpoints
-	groupRoutes := r.Group("/groups")
+	groups := router.Group("/groups")
 	{
-		groupRoutes.GET("/", getGroupList)
-		groupRoutes.GET("/:id", getGroup)
-		groupRoutes.POST("/", createGroup)
-		groupRoutes.PUT("/:id", updateGroup)
-		groupRoutes.DELETE("/:id", deleteGroup)
+		groups.GET("/", getGroups(db))
+		groups.POST("/", createGroup(db))
+		groups.PUT("/:id", updateGroup(db))
+		groups.DELETE("/:id", deleteGroup(db))
 	}
 
-	// r.POST("/auth", authenticateUser)
-
 	// Start the server
-	r.Run(":8080")
+	router.Run(":8080")
 
 }
 
@@ -128,209 +122,222 @@ func main() {
 
 //  Function endpoint user
 
-// getUserList retourne la liste de tous les utilisateurs
-func getUserList(c *gin.Context) {
-	var users []User
-	if err := db.Find(&users).Error; err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
+// User handlers
+func getUsers(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var users []User
+		if err := db.Find(&users).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching users"})
+			return
+		}
+		c.JSON(http.StatusOK, users)
 	}
-	c.JSON(http.StatusOK, users)
-}
-
-// getUser retourne un utilisateur par son ID
-func getUser(c *gin.Context) {
-	var user User
-	id := c.Param("id")
-	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-	c.JSON(http.StatusOK, user)
 }
 
 // createUser crée un nouvel utilisateur
-func createUser(c *gin.Context) {
-	var user User
-	if err := c.BindJSON(&user); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
+func createUser(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var user User
+		if err := c.BindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user data"})
+			return
+		}
+
+		if err := db.Create(&user).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating user"})
+			return
+		}
+		c.JSON(http.StatusCreated, user)
 	}
-	if err := db.Create(&user).Error; err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	c.JSON(http.StatusCreated, user)
 }
 
 // updateUser met à jour un utilisateur existant
-func updateUser(c *gin.Context) {
-	var user User
-	id := c.Param("id")
-	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
+func updateUser(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		var user User
+		if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			return
+		}
+
+		if err := c.BindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user data"})
+			return
+		}
+
+		if err := db.Save(&user).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error updating user"})
+			return
+		}
+		c.JSON(http.StatusOK, user)
 	}
-	if err := c.BindJSON(&user); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-	if err := db.Save(&user).Error; err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	c.JSON(http.StatusOK, user)
 }
 
 // deleteUser supprime un utilisateur existant
-func deleteUser(c *gin.Context) {
-	var user User
-	id := c.Param("id")
-	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
+func deleteUser(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		var user User
+		if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			return
+		}
+
+		if err := db.Delete(&user).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error deleting user"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "User deleted"})
 	}
-	if err := db.Delete(&user).Error; err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	c.Status(http.StatusNoContent)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //  Function endpoint role
 
-// getRoleList retourne la liste de tous les rôles
-func getRoleList(c *gin.Context) {
-	var roles []Role
-	if err := db.Find(&roles).Error; err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
+// getRoles retourne la liste de tous les rôles et retourne un rôle par son ID
+func getRoles(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var roles []Role
+		if err := db.Find(&roles).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching roles"})
+			return
+		}
+		c.JSON(http.StatusOK, roles)
 	}
-	c.JSON(http.StatusOK, roles)
-}
-
-// getRole retourne un rôle par son ID
-func getRole(c *gin.Context) {
-	var role Role
-	id := c.Param("id")
-	if err := db.Where("id = ?", id).First(&role).Error; err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-	c.JSON(http.StatusOK, role)
 }
 
 // createRole crée un nouveau rôle
-func createRole(c *gin.Context) {
-	var role Role
-	if err := c.BindJSON(&role); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
+func createRole(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var role Role
+		if err := c.BindJSON(&role); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role data"})
+			return
+		}
+
+		if err := db.Create(&role).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating role"})
+			return
+		}
+		c.JSON(http.StatusCreated, role)
 	}
-	if err := db.Create(&role).Error; err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	c.JSON(http.StatusCreated, role)
 }
 
 // UpdateRole met à jour un rôle existant
-func updateRole(c *gin.Context) {
-	id := c.Param("id")
-	var role Role
-	if err := db.Where("id = ?", id).First(&role).Error; err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
+func updateRole(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		var role Role
+		if err := db.Where("id = ?", id).First(&role).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Role not found"})
+			return
+		}
+
+		if err := c.BindJSON(&role); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role data"})
+			return
+		}
+
+		if err := db.Save(&role).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error updating role"})
+			return
+		}
+		c.JSON(http.StatusOK, role)
 	}
-	if err := c.BindJSON(&role); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-	db.Save(&role)
-	c.JSON(http.StatusOK, role)
 }
 
 // DeleteRole supprime un rôle par son ID
-func deleteRole(c *gin.Context) {
-	id := c.Param("id")
-	var role Role
-	if err := db.Where("id = ?", id).Delete(&role).Error; err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
+func deleteRole(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		var role Role
+		if err := db.Where("id = ?", id).First(&role).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Role not found"})
+			return
+		}
+
+		if err := db.Delete(&role).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error deleting role"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Role deleted"})
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Le rôle a été supprimé avec succès"})
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //  Function endpoint groupe.
 
-// getGroupList retourne la liste de tous les groupes.
-func getGroupList(c *gin.Context) {
-	var groups []Group
-	if err := db.Find(&groups).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to list groups"})
-		return
+// getGroups retourne la liste de tous les groupes et un groupe par son ID
+func getGroups(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var groups []Group
+		if err := db.Find(&groups).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching groups"})
+			return
+		}
+		c.JSON(http.StatusOK, groups)
 	}
-	c.JSON(http.StatusOK, groups)
-}
-
-// getRole retourne un groupe par son ID
-func getGroup(c *gin.Context) {
-	var group Group
-	if err := db.First(&group, c.Param("id")).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "group not found"})
-		return
-	}
-	c.JSON(http.StatusOK, group)
 }
 
 // createGroup crée un nouveau rôle
-func createGroup(c *gin.Context) {
-	var group Group
-	if err := c.BindJSON(&group); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON provided"})
-		return
+func createGroup(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var group Group
+		if err := c.BindJSON(&group); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid group data"})
+			return
+		}
+
+		if err := db.Create(&group).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating group"})
+			return
+		}
+		c.JSON(http.StatusCreated, group)
 	}
-	if err := db.Create(&group).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create group"})
-		return
-	}
-	c.JSON(http.StatusCreated, gin.H{"data": group})
 }
 
 // updateGroup met à jour un groupe existant
-func updateGroup(c *gin.Context) {
-	var group Group
-	if err := db.First(&group, c.Param("id")).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "group not found"})
-		return
+func updateGroup(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		var group Group
+		if err := db.Where("id = ?", id).First(&group).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Group not found"})
+			return
+		}
+
+		if err := c.BindJSON(&group); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid group data"})
+			return
+		}
+
+		if err := db.Save(&group).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error updating group"})
+			return
+		}
+		c.JSON(http.StatusOK, group)
 	}
-	if err := c.BindJSON(&group); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid group data"})
-		return
-	}
-	if err := db.Save(&group).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to update group"})
-		return
-	}
-	c.JSON(http.StatusOK, group)
 }
 
 // deleteGroup supprime un groupe par son ID
-func deleteGroup(c *gin.Context) {
-	var group Group
-	if err := db.First(&group, c.Param("id")).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "group not found"})
-		return
+func deleteGroup(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		var group Group
+		if err := db.Where("id = ?", id).First(&group).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Group not found"})
+			return
+		}
+
+		if err := db.Delete(&group).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error deleting group"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Group deleted"})
 	}
-	if err := db.Delete(&group).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to delete group"})
-		return
-	}
-	c.Status(http.StatusNoContent)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
