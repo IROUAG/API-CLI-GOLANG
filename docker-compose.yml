@@ -5,6 +5,7 @@ version: '3.8'
 services:
   app:
     build: ./app
+    restart: always
     ports:
       - "8080:8080"
     depends_on:
@@ -15,7 +16,8 @@ services:
       - .env
 
   db:
-    container_name: db
+    container_name: mydatabase
+    restart: always
     build: ./postgres-setup
     env_file:
       - .env

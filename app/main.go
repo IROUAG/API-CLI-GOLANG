@@ -65,16 +65,16 @@ func main() {
 		panic("Error loading .env file")
 	}
 
-	// environment variables
+	// Environment variables
 	dbUser := os.Getenv("POSTGRES_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbHost := "db"
+	dbPassword := os.Getenv("POSTGRES_PASSWORD")
+	dbHost := os.Getenv("POSTGRES_HOST")
 	dbname := os.Getenv("POSTGRES_DB")
+	dbPort := os.Getenv("POSTGRES_PORT")
 
 	// Connect to the PostgreSQL database
-	var err error
-	connStr := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", dbHost, dbUser, dbPassword, dbname)
-	db, err = gorm.Open("postgres", connStr)
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", dbHost, dbPort, dbUser, dbPassword, dbname)
+	db, err := gorm.Open("postgres", connStr)
 
 	if err != nil {
 		panic(fmt.Sprintf("failed to connect database: %v", err))
