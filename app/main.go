@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -72,7 +73,8 @@ func main() {
 
 	// Connect to the PostgreSQL database
 	var err error
-	db, err = gorm.Open("postgres", "host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, dbUser, dbName, dbPassword)
+	connStr := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, dbUser, dbName, dbPassword)
+	db, err = gorm.Open("postgres", connStr)
 	if err != nil {
 		panic("failed to connect database")
 	}
