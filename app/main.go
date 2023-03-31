@@ -60,6 +60,8 @@ type Group struct {
 	DeletedAt     *time.Time `json:"deleted_at"`
 }
 
+var db *gorm.DB
+
 func main() {
 
 	// Load the .env file
