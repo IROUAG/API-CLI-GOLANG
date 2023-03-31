@@ -94,8 +94,8 @@ func main() {
 	// user endpoints
 	users := router.Group("/users")
 	{
-		users.GET("/", getUserList(db))
-		users.GET("/:id", getUserList(db))
+		users.GET("/", getUsersList(db))
+		users.GET("/:id", getUser(db))
 		users.POST("/", createUser(db))
 		users.PUT("/:id", updateUser(db))
 		users.DELETE("/:id", deleteUser(db))
@@ -104,7 +104,8 @@ func main() {
 	// Role endpoints
 	roles := router.Group("/roles")
 	{
-		roles.GET("/", getRoles(db))
+		roles.GET("/", getRolesList(db))
+		roles.GET("/:id", getRole(db))
 		roles.POST("/", createRole(db))
 		roles.PUT("/:id", updateRole(db))
 		roles.DELETE("/:id", deleteRole(db))
@@ -113,7 +114,8 @@ func main() {
 	// Group endpoints
 	groups := router.Group("/groups")
 	{
-		groups.GET("/", getGroups(db))
+		groups.GET("/", getGroupsList(db))
+		groups.GET("/:id", getGroup(db))
 		groups.POST("/", createGroup(db))
 		groups.PUT("/:id", updateGroup(db))
 		groups.DELETE("/:id", deleteGroup(db))
@@ -128,8 +130,8 @@ func main() {
 
 //  Function endpoint user
 
-// User handlers
-func getUserList(db *gorm.DB) gin.HandlerFunc {
+// getUsersList donne la liste des utilisateurs
+func getUsersList(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var users []User
 		if err := db.Find(&users).Error; err != nil {
@@ -137,6 +139,19 @@ func getUserList(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, users)
+	}
+}
+
+// getUser fetches a single user by their ID
+func getUser(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		var user User
+		if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			return
+		}
+		c.JSON(http.StatusOK, user)
 	}
 }
 
@@ -203,7 +218,7 @@ func deleteUser(db *gorm.DB) gin.HandlerFunc {
 //  Function endpoint role
 
 // getRoles retourne la liste de tous les rôles et retourne un rôle par son ID
-func getRoles(db *gorm.DB) gin.HandlerFunc {
+func getRolesList(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var roles []Role
 		if err := db.Find(&roles).Error; err != nil {
@@ -211,6 +226,19 @@ func getRoles(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, roles)
+	}
+}
+
+// getRole fetches a single role by their ID
+func getRole(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		var role Role
+		if err := db.Where("id = ?", id).First(&role).Error; err != nil {
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Role not found"})
+			return
+		}
+		c.JSON(http.StatusOK, role)
 	}
 }
 
@@ -277,7 +305,7 @@ func deleteRole(db *gorm.DB) gin.HandlerFunc {
 //  Function endpoint groupe.
 
 // getGroups retourne la liste de tous les groupes et un groupe par son ID
-func getGroups(db *gorm.DB) gin.HandlerFunc {
+func getGroupsList(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var groups []Group
 		if err := db.Find(&groups).Error; err != nil {
@@ -285,6 +313,19 @@ func getGroups(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, groups)
+	}
+}
+
+// getGroup fetches a single group by their ID
+func getGroup(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		var group Group
+		if err := db.Where("id = ?", id).First(&group).Error; err != nil {
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Group not found"})
+			return
+		}
+		c.JSON(http.StatusOK, group)
 	}
 }
 
