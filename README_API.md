@@ -64,7 +64,7 @@ docker-compose down
 
 ### /auth
 
-* `POST /signup`: création d'un utiliateur dans la DB avec email + password
+* `POST /signup`: création d'un utilisateur dans la DB avec email + password
 * `POST /login`: authentification d'un utilisateur + retour du token JWT
 * `POST /validate`: récupération du token JWT pour analyse et sécurisation des routes d'accès
 
