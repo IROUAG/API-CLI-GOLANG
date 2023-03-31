@@ -79,7 +79,8 @@ func main() {
 
 	// Connect to the PostgreSQL database
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", dbHost, dbPort, dbUser, dbPassword, dbname)
-	db, err := gorm.Open("postgres", connStr)
+	var err error
+	db, err = gorm.Open("postgres", connStr)
 
 	if err != nil {
 		panic(fmt.Sprintf("failed to connect to the database: %v", err))
@@ -95,6 +96,7 @@ func main() {
 	// user endpoints
 	users := router.Group("/users")
 	{
+		users.Use(requireAuth)
 		users.GET("/", getUsers(db))
 		users.POST("/", createUser(db))
 		users.PUT("/:id", updateUser(db))
@@ -104,6 +106,7 @@ func main() {
 	// Role endpoints
 	roles := router.Group("/roles")
 	{
+		roles.Use(requireAuth)
 		roles.GET("/", getRoles(db))
 		roles.POST("/", createRole(db))
 		roles.PUT("/:id", updateRole(db))
@@ -113,11 +116,16 @@ func main() {
 	// Group endpoints
 	groups := router.Group("/groups")
 	{
+		groups.Use(requireAuth)
 		groups.GET("/", getGroups(db))
 		groups.POST("/", createGroup(db))
 		groups.PUT("/:id", updateGroup(db))
 		groups.DELETE("/:id", deleteGroup(db))
 	}
+
+	// Auth endpoints
+	router.POST("/signup", signup)
+	router.POST("/login", login)
 
 	// Start the server
 	router.Run(":8080")
@@ -452,17 +460,6 @@ func login(c *gin.Context) {
 
 }
 
-// message de confirmation de connexion
-func validation(c *gin.Context) {
-	user, _ := c.Get("user")
-
-	c.JSON(http.StatusOK, gin.H{
-		"message":  "Vous êtes connecté",
-		"username": user,
-	})
-
-}
-
 func requireAuth(c *gin.Context) {
 
 	tokenString, err := c.Cookie("Authorization")
@@ -500,5 +497,16 @@ func requireAuth(c *gin.Context) {
 	} else {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
+
+}
+
+// message de confirmation de connexion
+func validation(c *gin.Context) {
+	user, _ := c.Get("user")
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Vous êtes connecté",
+		"username": user,
+	})
 
 }
