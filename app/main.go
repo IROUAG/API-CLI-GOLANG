@@ -94,7 +94,8 @@ func main() {
 	// user endpoints
 	users := router.Group("/users")
 	{
-		users.GET("/", getUsers(db))
+		users.GET("/", getUserList(db))
+		users.GET("/:id", getUserList(db))
 		users.POST("/", createUser(db))
 		users.PUT("/:id", updateUser(db))
 		users.DELETE("/:id", deleteUser(db))
@@ -128,7 +129,7 @@ func main() {
 //  Function endpoint user
 
 // User handlers
-func getUsers(db *gorm.DB) gin.HandlerFunc {
+func getUserList(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var users []User
 		if err := db.Find(&users).Error; err != nil {
