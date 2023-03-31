@@ -24,6 +24,7 @@ CREATE TABLE groups (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
     parent_group_id INT NULL,
+    child_group_ids INTEGER[] NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL,
     deleted_at TIMESTAMP NULL,
@@ -79,10 +80,10 @@ INSERT INTO roles (name, description, created_at) VALUES
 ('Viewer', 'Can view content only', NOW());
 
 -- Insert sample data into the groups table
-INSERT INTO groups (name, parent_group_id, created_at) VALUES
-    ('Management', NULL, NOW()),
-    ('Marketing', NULL, NOW()),
-    ('Sales', NULL, NOW());
+INSERT INTO groups (name, parent_group_id, child_group_ids, created_at) VALUES
+('Management', NULL, NULL, NOW()),
+('Marketing', NULL, NULL, NOW()),
+('Sales', NULL, NULL, NOW());
 
 INSERT INTO user_roles (user_id, role_id) VALUES
 (1, 1), -- Alice has the Admin role
