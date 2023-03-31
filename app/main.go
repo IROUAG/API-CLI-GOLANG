@@ -7,11 +7,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/joho/godotenv"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -96,7 +94,6 @@ func main() {
 	// user endpoints
 	users := router.Group("/users")
 	{
-		users.Use(requireAuth)
 		users.GET("/", getUsers(db))
 		users.POST("/", createUser(db))
 		users.PUT("/:id", updateUser(db))
@@ -106,7 +103,6 @@ func main() {
 	// Role endpoints
 	roles := router.Group("/roles")
 	{
-		roles.Use(requireAuth)
 		roles.GET("/", getRoles(db))
 		roles.POST("/", createRole(db))
 		roles.PUT("/:id", updateRole(db))
@@ -116,16 +112,11 @@ func main() {
 	// Group endpoints
 	groups := router.Group("/groups")
 	{
-		groups.Use(requireAuth)
 		groups.GET("/", getGroups(db))
 		groups.POST("/", createGroup(db))
 		groups.PUT("/:id", updateGroup(db))
 		groups.DELETE("/:id", deleteGroup(db))
 	}
-
-	// Auth endpoints
-	router.POST("/signup", signup)
-	router.POST("/login", login)
 
 	// Start the server
 	router.Run(":8080")
@@ -355,158 +346,3 @@ func deleteGroup(db *gorm.DB) gin.HandlerFunc {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Fonctions pour auth JWT (signUp + Login)
-
-func signup(c *gin.Context) {
-
-	// get email/password du request body
-
-	var body struct {
-		Email    string
-		Password string
-	}
-
-	if c.Bind(&body) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
-		return
-	}
-
-	// hash password
-
-	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
-		return
-	}
-
-	// creation user
-
-	user := User{Email: body.Email, Password: string(hash)}
-	result := db.Create(&user)
-
-	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{})
-}
-
-func login(c *gin.Context) {
-
-	var body struct {
-		Email    string
-		Password string
-	}
-
-	if c.Bind(&body) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
-		return
-	}
-
-	var user User
-	db.First(&user, "email = ?", body.Email)
-
-	if user.ID == 0 {
-
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Email ou mot de passe invalide",
-		})
-		return
-	}
-
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
-
-	if err != nil {
-
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Email ou mot de passe invalide",
-		})
-		return
-	}
-
-	// generation du token JWT
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
-	})
-
-	// signature et recup du token chiffré en string utilisant la var SECRET
-
-	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
-
-	if err != nil {
-
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create token",
-		})
-		return
-	}
-
-	// on retourne le token (en cookie)
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
-	c.JSON(http.StatusOK, gin.H{})
-
-}
-
-func requireAuth(c *gin.Context) {
-
-	tokenString, err := c.Cookie("Authorization")
-	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-	}
-
-	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-
-		}
-
-		return []byte(os.Getenv("SECRET")), nil
-
-	})
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-
-		if float64(time.Now().Unix()) > claims["exp"].(float64) {
-			c.AbortWithStatus(http.StatusUnauthorized)
-		}
-
-		var user User
-		db.First(&user, claims["sub"])
-
-		if user.ID == 0 {
-			c.AbortWithStatus(http.StatusUnauthorized)
-		}
-
-		c.Set("user", user)
-
-		c.Next()
-
-	} else {
-		c.AbortWithStatus(http.StatusUnauthorized)
-	}
-
-}
-
-// message de confirmation de connexion
-func validation(c *gin.Context) {
-	user, _ := c.Get("user")
-
-	c.JSON(http.StatusOK, gin.H{
-		"message":  "Vous êtes connecté",
-		"username": user,
-	})
-
-}
