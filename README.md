@@ -13,7 +13,7 @@ Ce dépôt contient une API Golang avec une base de données PostgreSQL et une C
 - Docker
 - Docker Compose
 
-## Comment construire et exécuter l'API
+## Comment construire et exécuter l'API et la CLI
 
 1. Clonez le dépôt :
 
