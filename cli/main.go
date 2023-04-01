@@ -1,6 +1,11 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+
 	"github.com/spf13/cobra"
 )
 
@@ -23,5 +28,30 @@ func main() {
 
 	if err := rootCmd.Execute(); err != nil {
 		panic(err)
+	}
+	// Read user input in a loop
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		fmt.Print("> ")
+
+		// Read the user's input
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("Error reading input:", err)
+			continue
+		}
+
+		// Remove newline characters
+		input = strings.TrimSuffix(input, "\n")
+		input = strings.TrimSuffix(input, "\r")
+
+		// Split input into arguments
+		args := strings.Fields(input)
+
+		// Execute the command with the provided arguments
+		rootCmd.SetArgs(args)
+		if err := rootCmd.Execute(); err != nil {
+			fmt.Println("Error executing command:", err)
+		}
 	}
 }
