@@ -10,7 +10,6 @@ COPY . ./
 # Download the dependencies
 RUN go mod download
 
-
 # Build the app
 RUN CGO_ENABLED=0 GOOS=linux go build -o cli main.go commands.go
 
