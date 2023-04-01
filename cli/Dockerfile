@@ -11,7 +11,7 @@ COPY . ./
 RUN go mod download
 
 # Build the app
-RUN CGO_ENABLED=0 GOOS=linux go build -o cli main.go commands.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o .
 
 # Second stage: create a minimal image to deploy the app
 FROM alpine:3.14
