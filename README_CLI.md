@@ -2,9 +2,9 @@
 
 Ce dépôt contient une API Golang avec une base de données PostgreSQL et une CLI pour interagir avec l'API, organisée comme suit :
 
-- `app/` : Contient le code de l'application Go et son Dockerfile et le fichier des variables d'environnement.
+- `app/` : Contient le code de l'application Go, son Dockerfile et le fichier des variables d'environnement.
 - `postgres-setup/` : Contient le script SQL pour la configuration de la base de données PostgreSQL et son Dockerfile.
-- `cli/` : Contient le script SQL pour la configuration de la base de données PostgreSQL et son Dockerfile.
+- `cli/` : Contient le code source de la CLI, son Dockerfile et les fichiers nécessaires à son fonctionnement.
 - `docker-compose.yml` : Fichier de configuration Docker Compose pour construire et exécuter l'ensemble de l'application.
 - `.env` : Fichier des variables d'environnement pour stocker les paramètres de connexion à la base de données.
 
@@ -107,3 +107,50 @@ Remplacez your-command et [args] par la commande appropriée et les arguments de
 
 ### Exemples d'utilisation de la CLI
 
+## Se connecter en tant qu'utilisateur
+
+```bash
+docker-compose exec app your-cli login --email "email@example.com" --password "your-password"
+```
+
+## Actualiser un JWT d'authentification
+
+```bash
+docker-compose exec app your-cli refresh --refresh_token "your-refresh-token"
+```
+
+## Se déconnecter et supprimer un JWT d'authentification et un jeton d'actualisation
+
+```bash
+docker-compose exec app your-cli logout --access_token "your-access-token" --refresh_token "your-refresh-token"
+```
+
+## Se déconnecter et supprimer un JWT d'authentification et un jeton d'actualisation
+
+```bash
+docker-compose exec app your-cli logout --access_token "your-access-token" --refresh_token "your-refresh-token"
+```
+
+## Lister les utilisateurs
+
+```bash
+docker-compose exec cli users list
+```
+
+## Récupérer un utilisateur spécifique
+
+```bash
+docker-compose exec cli users get user_id
+```
+
+## Créer un nouvel utilisateur
+
+```bash
+docker-compose exec cli users create --email newuser@example.com --password new_password --name "New User"
+```
+
+## Mettre à jour un utilisateur existant
+
+```bash
+docker-compose exec cli users update user_id --email updateduser@example.com --password updated_password --name "Updated User"
+```
