@@ -1,5 +1,3 @@
-# docker-compose up -d --build
-
 version: '3.8'
 services:
   app:
@@ -28,6 +26,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  cli:
+    build: ./cli
+    depends_on:
+      - app
+      - db
+    tty: true
 
 volumes:
   db_data:
