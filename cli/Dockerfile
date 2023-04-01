@@ -12,13 +12,13 @@ RUN go mod download
 
 
 # Build the app
-RUN CGO_ENABLED=0 GOOS=linux go build -o my-cli-app main.go commands.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o cli main.go commands.go
 
 # Second stage: create a minimal image to deploy the app
 FROM alpine:3.14
 
 # Copy the binary from the builder stage
-COPY --from=builder /app/my-cli-app /usr/local/bin/my-cli-app
+COPY --from=builder /app/cli /usr/local/bin/cli
 
 # Set the app as the entrypoint
-ENTRYPOINT ["my-cli-app"]
+ENTRYPOINT ["cli"]
