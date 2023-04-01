@@ -110,25 +110,25 @@ Remplacez your-command et [args] par la commande appropriée et les arguments de
 ## Se connecter en tant qu'utilisateur
 
 ```bash
-docker-compose exec app your-cli login --email "email@example.com" --password "your-password"
+docker-compose exec app cli login --email "email@example.com" --password "your-password"
 ```
 
 ## Actualiser un JWT d'authentification
 
 ```bash
-docker-compose exec app your-cli refresh --refresh_token "your-refresh-token"
+docker-compose exec app cli refresh --refresh_token "your-refresh-token"
 ```
 
 ## Se déconnecter et supprimer un JWT d'authentification et un jeton d'actualisation
 
 ```bash
-docker-compose exec app your-cli logout --access_token "your-access-token" --refresh_token "your-refresh-token"
+docker-compose exec app cli logout --access_token "your-access-token" --refresh_token "your-refresh-token"
 ```
 
 ## Se déconnecter et supprimer un JWT d'authentification et un jeton d'actualisation
 
 ```bash
-docker-compose exec app your-cli logout --access_token "your-access-token" --refresh_token "your-refresh-token"
+docker-compose exec app cli logout --access_token "your-access-token" --refresh_token "your-refresh-token"
 ```
 
 ## Lister les utilisateurs
