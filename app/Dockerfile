@@ -1,10 +1,10 @@
-# Use the official Go image as the base
+# Utilisez une image Golang pour construire votre application
 FROM golang:1.20
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the entire project to the working directory
+# Copiez les fichiers nécessaires pour construire l'application
 COPY . ./
 
 # Download the dependencies
