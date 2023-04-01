@@ -11,7 +11,7 @@ import (
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "your-cli",
+		Use:   "cli",
 		Short: "CLI for interacting with the API",
 		Long:  `CLI for interacting with the API. Supports login, refresh, logout, and user management.`,
 		Run: func(cmd *cobra.Command, args []string) {
