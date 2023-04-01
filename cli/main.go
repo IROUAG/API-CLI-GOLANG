@@ -1,27 +1,27 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "app",
-		Short: "A CLI application to manage users, roles, and groups",
-		Long:  `A CLI application to manage users, roles, and groups through a REST API.`,
+		Use:   "your-cli",
+		Short: "CLI for interacting with the API",
+		Long:  `CLI for interacting with the API. Supports login, refresh, logout, and user management.`,
 	}
 
-	loginCmd := makeLoginCmd()
-	refreshCmd := makeRefreshCmd()
-	logoutCmd := makeLogoutCmd()
-	userCmd := makeUserCmd()
-	roleCmd := makeRoleCmd()
-	groupCmd := makeGroupCmd()
+	loginCmd := createLoginCmd()
+	refreshCmd := createRefreshCmd()
+	logoutCmd := createLogoutCmd()
+	usersCmd := createUsersCmd()
 
-	rootCmd.AddCommand(loginCmd, refreshCmd, logoutCmd, userCmd, roleCmd, groupCmd)
+	rootCmd.AddCommand(loginCmd)
+	rootCmd.AddCommand(refreshCmd)
+	rootCmd.AddCommand(logoutCmd)
+	rootCmd.AddCommand(usersCmd)
+
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 }

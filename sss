@@ -1,0 +1,52 @@
+La CLI doit permettre d'interagir avec l'API et doit supporter les commandes suivantes :
+
+* `login`: connecter un utilisateur et recevoir un jeton d'authentification JWT et un jeton de rafraîchissement (à stocker chiffré localement) (refresh token)
+  * `email`: l'adresse email de l'utilisateur
+  * `password`: le mot de passe de l'utilisateur
+* `refresh`: renouveler un jeton d'authentification JWT à l'aide d'un jeton de rafraîchissement
+  * `refresh_token`: le jeton de rafraîchissement
+* `logout`: supprimer un jeton d'authentification JWT et de rafraîchissement
+  * `access_token`: le jeton d'authentification à supprimer
+  * `refresh_token`: le jeton de rafraîchissement à supprimer
+* `users`: gérer les utilisateurs
+  * `list`: lister tous les utilisateurs
+  * `get`: récupérer un utilisateur spécifique
+    * `user_id`: l'ID de l'utilisateur à récupérer
+  * `create`: créer un nouvel utilisateur
+    * `name`: le nom de l'utilisateur
+    * `email`: l'adresse email de l'utilisateur
+    * `password`: le mot de passe de l'utilisateur
+    * `roles`: les rôles de l'utilisateur (poteniellement vide)
+    * `groups`: les groupes de l'utilisateur (poteniellement vide)
+  * `update`: mettre à jour un utilisateur existant
+    * `user_id`: l'ID de l'utilisateur à mettre à jour
+    * `name`: le nouveau nom de l'utilisateur
+    * `email`: la nouvelle adresse email de l'utilisateur
+    * `password`: le nouveau mot de passe de l'utilisateur
+    * `roles`: les nouveaux rôles de l'utilisateur
+    * `groups`: les nouveaux groupes de l'utilisateur
+  * `delete`: supprimer un utilisateur existant
+    * `user_id`: l'ID de l'utilisateur à supprimer
+* `roles`: gérer les rôles
+  * `list`: lister tous les rôles
+  * `get`: récupérer un rôle spécifique
+    * `role_id`: l'ID du rôle à récupérer
+  * `create`: créer un nouveau rôle
+    * `name`: le nom du rôle
+    * `description`: la description du rôle
+  * `update`: mettre à jour un rôle existant
+    * `role_id`: l'ID du rôle à mettre à jour
+    * `name`: le nouveau nom du rôle
+    * `description`: la nouvelle description du rôle
+  * `delete`: supprimer un rôle existant
+    * `role_id`: l'ID du rôle à supprimer
+* `groups`: gérer les groupes d'utilisateurs
+  * `list`: lister tous les groupes
+  * `get`: récupérer un groupe spécifique
+    * `group_id`: l'ID du groupe à récupérer
+  * `create`: créer un nouveau groupe
+    * `name`: le nom du groupe
+    * `parent_group_id`: l'ID du groupe parent
+  * `update`: mettre à jour un groupe existant
+    * `group_id`: l'ID du groupe à mettre à jour
+    * `name`: le nouveau nom du groupe
