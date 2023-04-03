@@ -2,7 +2,7 @@
 FROM golang:1.20 as builder
 
 # Set the working directory
-WORKDIR /app
+WORKDIR /cli
 
 # Copiez les fichiers nécessaires pour construire l'application
 COPY . ./
@@ -20,4 +20,4 @@ FROM alpine:3.14
 COPY --from=builder /app/cli /usr/local/bin/cli
 
 # Set the app as the entrypoint
-CMD [".cli"]
+CMD ["./cli"]
