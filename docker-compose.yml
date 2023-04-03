@@ -28,13 +28,13 @@ services:
       timeout: 5s
       retries: 5
 
-  # cli:
-  #   container_name: cli
-  #   build: ./cli
-  #   depends_on:
-  #     - app
-  #     - db
-  #   tty: true
+  cli:
+    container_name: cli
+    build: ./cli
+    depends_on:
+      - app
+      - db
+    tty: true
 
 volumes:
   db_data:
