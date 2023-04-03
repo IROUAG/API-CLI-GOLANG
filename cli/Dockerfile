@@ -20,4 +20,4 @@ FROM alpine:3.14
 COPY --from=builder /app/cli /usr/local/bin/cli
 
 # Set the app as the entrypoint
-CMD ["./cli"]
+CMD [".cli"]
