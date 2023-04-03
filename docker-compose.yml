@@ -10,12 +10,12 @@ services:
       database:
         condition: service_healthy
     links:
-      - db
+      - database
     env_file:
       - .env
 
-  database:
-    container_name: database
+  db:
+    container_name: db
     restart: always
     build: ./postgres-setup
     env_file:
