@@ -7,10 +7,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      database:
+      db:
         condition: service_healthy
     links:
-      - database
+      - db
     env_file:
       - .env
 
