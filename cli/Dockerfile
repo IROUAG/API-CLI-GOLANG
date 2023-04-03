@@ -17,7 +17,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o cli .
 FROM alpine:3.14
 
 # Copy the binary from the builder stage
-COPY --from=builder /app/cli /usr/local/bin/cli
+COPY --from=builder /cli/cli /usr/local/bin/cli
 
 # Set the app as the entrypoint
 CMD ["./cli"]
