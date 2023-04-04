@@ -16,6 +16,9 @@ func main() {
 	rootCmd := &cobra.Command{
 		Use:   "app",
 		Short: "Une CLI pour interagir avec l'API",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Use a subcommand to interact with the API. Run 'app --help' for usage.")
+		},
 	}
 
 	// Login
