@@ -3,15 +3,13 @@ services:
   app:
     container_name: app
     build: ./app
-    image: app:project-golang
+    image: app
     restart: always
     ports:
       - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
-    links:
-      - db
     env_file:
       - .env
     networks:
@@ -20,30 +18,31 @@ services:
   db:
     container_name: db
     restart: always
-    image: db:project-golang
+    image: db
     build: ./postgres-setup
     env_file:
       - .env
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+       interval: 10s
+       timeout: 5s
+       retries: 5
     networks:
       - network-project
 
   cli:
-    container_name: cli
-    build: ./cli
-    image: cli:project-golang
-    depends_on:
-      - app
-      - db
-    tty: true
-    networks:
-      - network-project
+     container_name: cli
+     build: ./cli
+     restart: always
+     image: cli:project-golang
+     depends_on:
+       - app
+       - db
+     tty: true
+     networks:
+       - network-project
 
 volumes:
   db_data:

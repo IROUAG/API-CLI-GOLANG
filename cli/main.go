@@ -14,7 +14,7 @@ import (
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "cli",
+		Use:   "app",
 		Short: "Une CLI pour interagir avec l'API",
 	}
 
@@ -220,6 +220,7 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
 }
 
 ////////////////////////////////////////////////////////////////	//////////////////////////////////////////////

@@ -70,7 +70,6 @@ docker-compose down
 * `POST /login`: authentification d'un utilisateur + retour du token JWT
 * `POST /validate`: récupération du token JWT pour analyse et sécurisation des routes d'accès
 
-
 ## Utilisation de la CLI
 
 Pour utiliser la CLI, exécutez les commandes à l'intérieur du conteneur en utilisant docker-compose exec :
