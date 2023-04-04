@@ -7,7 +7,7 @@ COPY . .
 
 RUN go mod download
 
-RUN go build -o app .
+RUN go build -o cli .
 
 # Final stage
 
@@ -15,7 +15,7 @@ FROM alpine:3.14
 
 WORKDIR /app
 
-COPY --from=build /app/app .
+COPY --from=build /app/cli .
 
 ENTRYPOINT ["./app"]
 

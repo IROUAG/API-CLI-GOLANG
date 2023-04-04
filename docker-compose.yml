@@ -3,6 +3,7 @@ services:
   app:
     container_name: app
     build: ./app
+    image: golang:app
     restart: always
     ports:
       - "8080:8080"
@@ -19,6 +20,7 @@ services:
   db:
     container_name: db
     restart: always
+    image: golang:cli
     build: ./postgres-setup
     env_file:
       - .env
@@ -35,6 +37,7 @@ services:
   cli:
     container_name: cli
     build: ./cli
+    image: postgres:db
     depends_on:
       - app
       - db
