@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -20,6 +21,13 @@ func main() {
 			fmt.Println("Use a subcommand to interact with the API. Run ' --help' for usage.")
 		},
 	}
+
+	serveCmd := &cobra.Command{
+		Use:   "serve",
+		Short: "Run the CLI as a server",
+		Run:   serve,
+	}
+	rootCmd.AddCommand(serveCmd)
 
 	// Login
 	loginCmd := &cobra.Command{
@@ -272,6 +280,12 @@ func login(cmd *cobra.Command, args []string) {
 	}
 
 	fmt.Println(string(responseBody))
+}
+
+func serve(cmd *cobra.Command, args []string) {
+	for {
+		time.Sleep(time.Hour)
+	}
 }
 
 func refresh(cmd *cobra.Command, args []string) {
