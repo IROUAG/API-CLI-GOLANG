@@ -1,117 +1,120 @@
-# Projet Golang: Ilies & Sylvain
+# Golang Project:
 
-Ce dépôt contient une API Golang avec une base de données PostgreSQL et une CLI pour interagir avec l'API, organisée comme suit :
+This repository contains a Golang API with a PostgreSQL database and a CLI to interact with the API, organized as follows:
 
-- `app/` : Contient le code de l'application Go, son Dockerfile et le fichier des variables d'environnement.
-- `postgres-setup/` : Contient le script SQL pour la configuration de la base de données PostgreSQL et son Dockerfile.
-- `cli/` : Contient le code source de la CLI, son Dockerfile et les fichiers nécessaires à son fonctionnement.
-- `docker-compose.yml` : Fichier de configuration Docker Compose pour construire et exécuter l'ensemble de l'application.
-- `.env` : Fichier des variables d'environnement pour stocker les paramètres de connexion à la base de données.
+- `app/`: Contains the Go application code, its Dockerfile, and the environment variables file.
+- `postgres-setup/`: Contains the SQL script for configuring the PostgreSQL database and its Dockerfile.
+- `cli/`: Contains the CLI source code, its Dockerfile, and the necessary files for its operation.
+- `docker-compose.yml`: Docker Compose configuration file for building and running the entire application.
+- `.env`: Environment variables file to store the database connection parameters.
 
-## Prérequis
+## Prerequisites
 
 - Docker
 - Docker Compose
 
-## Comment construire et exécuter l'API et la CLI
+## How to build and run the API and CLI
 
-1. Clonez le dépôt :
+1. Clone the repository:
 
 ```bash
-git clone https://gitlab.com/votre-username/golang_project_ilies_sylvain.git
+git clone https://gitlab.com/your-username/golang_project_ilies_sylvain.git
 cd golang_project_ilies_sylvain
 ```
 
-2. Construisez et exécutez l'application en utilisant Docker Compose :
+2. Build and run the application using Docker Compose:
 
 ```bash
 docker-compose up -d --build
 ```
 
-Cette commande construira les conteneurs de l'application Go, de PostgreSQL et de la CLI, puis les exécutera ensemble. Votre application sera accessible à l'adresse http://localhost:8080.
+This command will build the Go application, PostgreSQL, and CLI containers, then run them together. Your application will be accessible at http://localhost:8080.
 
-Pour arrêter les conteneurs, appuyez sur Ctrl+C ou exécutez :
+To stop the containers, press Ctrl+C or run:
 
 ```bash
-docker-compose down
+docker-compose down -v
 ```
-## EndPoint de l'API
+## API Endpoints
 
-* `/users`: Gérer les utilisateurs (GET, POST, PUT, DELETE).
-* `/roles`: Gérer les rôles pour les utilisateurs (GET, POST, PUT, DELETE).
-* `/groups`: Gérer les groupes d'utilisateurs (GET, POST, PUT, DELETE).
-* `/auth`: Gérer l'authentification des utilisateurs en utilisant JWT (POST).
+* `/users`: Manage users (GET, POST, PUT, DELETE).
+* `/roles`: Manage roles for users (GET, POST, PUT, DELETE).
+* `/groups`: Manage user groups (GET, POST, PUT, DELETE).
+* `/auth`: Manage user authentication using JWT (POST).
 
 ### /users
 
-* `GET /users`: Récupérer la liste des utilisateurs.
-* `POST /users`: Créer un nouvel utilisateur.
-* `PUT /users/:id`: Mettre à jour un utilisateur existant avec l'ID spécifié.
-* `DELETE /users/:id`: Supprimer un utilisateur avec l'ID spécifié.
+* `GET /users`: Retrieve the list of users.
+* `POST /users`: Create a new user.
+* `PUT /users/:id`: Update an existing user with the specified ID.
+* `DELETE /users/:id`: Delete a user with the specified ID.
 
 ### /roles
 
-* `GET /roles`: Récupérer la liste des rôles.
-* `POST /roles`: Créer un nouveau rôle.
-* `PUT /roles/:id`: Mettre à jour un rôle existant avec l'ID spécifié.
-* `DELETE /roles/:id`: Supprimer un rôle avec l'ID spécifié.
+* `GET /roles`: Retrieve the list of roles.
+* `POST /roles`: Create a new role.
+* `PUT /roles/:id`: Update an existing role with the specified ID.
+* `DELETE /roles/:id`: Delete a role with the specified ID.
 
-### /roles
+### /groups
 
-* `GET /groups`: Récupérer la liste des groupes.
-* `POST /groups`: Créer un nouveau groupes.
-* `PUT /groups/:id`: Mettre à jour un groupe existant avec l'ID spécifié.
-* `DELETE /groups/:id`: Supprimer un groupe avec l'ID spécifié.
+* `GET /groups`: Retrieve the list of groups.
+* `POST /groups`: Create a new group.
+* `PUT /groups/:id`: Update an existing group with the specified ID.
+* `DELETE /groups/:id`: Delete a group with the specified ID.
 
 ### /auth
 
-* `POST /auth`: Authentifier un utilisateur et retourner un jeton JWT.
-* `POST /signup`: création d'un utilisateur dans la DB avec email + password
-* `POST /login`: authentification d'un utilisateur + retour du token JWT
-* `POST /validate`: récupération du token JWT pour analyse et sécurisation des routes d'accès
+* `POST /auth`: Authenticate a user and return a JWT token.
+* `POST /signup`: Create a user in the DB with email + password.
+* `POST /login`: Authenticate a user + return the JWT token.
+* `POST /validate`: Retrieve the JWT token for analysis and securing access routes.
 
-## Utilisation de la CLI
+## Using the CLI
 
-Pour utiliser la CLI, il est fortement recommander de créer un alias:
+To use the CLI, it is strongly recommended to create an alias:
 
 ```bash
 alias cli="docker exec -it cli ./cli"
 ```
 
-Pour pouvoir exécuter les commandes à l'intérieur du conteneur:
+To be able to run commands inside the container:
 
 ```bash
 cli your-command [args]
 ```
 
-Sinon vous pouvez exécuter les commandes à l'intérieur du conteneur en utilisant docker exec :
+Otherwise, you can run commands inside the container using docker exec:
 
 ```bash
 docker exec -it cli ./cli your-command [args]
 ```
-Remplacez your-command et [args] par la commande appropriée et les arguments de votre application CLI.
 
-### Commandes disponibles
+Replace your-command and [args] with the appropriate command and arguments for your CLI application.
 
-* `login`: Se connecter en tant qu'utilisateur et récupérer un JWT d'authentification et un jeton d'actualisation.
+### Available commands
+
+* `login`: Log in as a user and retrieve an authentication JWT token and a refresh token.
     * Flags:
-        * `--email`: Adresse e-mail de l'utilisateur.
-        * `---password`: Mot de passe de l'utilisateur.
-* `refresh`: Actualiser un JWT d'authentification à l'aide d'un jeton d'actualisation.
+        * `--email`: User's email address.
+        * `---password`: User's password.
+* `refresh`: Refresh an authentication JWT token using a refresh token.
     * Flags:
-        * `--refresh_token`: Le jeton d'actualisation.
-* `logout`: Se déconnecter et supprimer un JWT d'authentification et un jeton d'actualisation.
+        * `--refresh_token`: The refresh token.
+* `logout`: Log out and delete an authentication JWT token and a refresh token.
     * Flags:
-        * `--access_token`: Le jeton d'authentification.
-* `users list`: Lister tous les utilisateurs.
-* `users get [user_id]`: Récupérer un utilisateur spécifique.
-* `users create`: Créer un nouvel utilisateur.
+        * `--access_token`: The authentication JWT token.
+* `users list`: List all users.
+* `users get [user_id]`: Retrieve a specific user.
+* `users create`: Create a new user.
     * Flags:
-        * `--email`: Adresse e-mail de l'utilisateur.
-        * `--password`: Mot de passe de l'utilisateur.
-        * `--name`: Nom complet de l'utilisateur.
-* `users update [user_id]`: Mettre à jour un utilisateur existant.
+        * `--email`: User's email address.
+        * `--password`: User's password.
+        * `--name`: User's full name.
+* `users update [user_id]`: Update an existing user.
     * Flags:
-        * `--email`: Nouvelle adresse e-mail de l'utilisateur.
-        * `--password`: Nouveau mot de passe de l'utilisateur.
-        * `--name`: Nouveau nom complet de l'utilisateur.
+        * `--email`: User's new email address.
+        * `--password`: User's new password.
+        * `--name`: User's new full name.
+
+
