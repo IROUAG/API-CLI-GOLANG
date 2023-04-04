@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -505,41 +506,37 @@ func login(c *gin.Context) {
 }
 
 func requireAuth(c *gin.Context) {
-
-	tokenString, err := c.Cookie("Authorization")
-	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
+		return
 	}
 
-	// Parsing du token string
+	bearerToken := strings.Split(authHeader, " ")
 
+	if len(bearerToken) != 2 {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+		return
+	}
+
+	tokenString := bearerToken[1]
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-
 		}
-
-		return []byte(os.Getenv("SECRET")), nil
-
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-
-		// vérification de la date d'expiration du token
-
-		if float64(time.Now().Unix()) > claims["exp"].(float64) {
-			c.AbortWithStatus(http.StatusUnauthorized)
-		}
-
-		var user User
-		db.First(&user, claims["userid"])
-
-		c.Set("user", user)
-
-		c.Next()
-
-	} else {
-		c.AbortWithStatus(http.StatusUnauthorized)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
 	}
 
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		c.Set("user_id", claims["id"])
+		c.Next()
+	} else {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
 }
