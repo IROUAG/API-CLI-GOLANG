@@ -37,7 +37,7 @@ services:
   cli:
     container_name: cli
     build: ./cli
-    image: postgres:db
+    image: postgres:cli
     depends_on:
       - app
       - db
