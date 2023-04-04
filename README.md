@@ -72,10 +72,22 @@ docker-compose down
 
 ## Utilisation de la CLI
 
-Pour utiliser la CLI, exécutez les commandes à l'intérieur du conteneur en utilisant docker-compose exec :
+Pour utiliser la CLI, il est fortement recommander de créer un alias:
 
 ```bash
-docker-compose exec cli your-command [args]
+alias cli="docker exec -it cli ./cli"
+```
+
+Pour pouvoir exécuter les commandes à l'intérieur du conteneur:
+
+```bash
+cli your-command [args]
+```
+
+Sinon vous pouvez exécuter les commandes à l'intérieur du conteneur en utilisant docker exec :
+
+```bash
+docker exec -it cli ./cli your-command [args]
 ```
 Remplacez your-command et [args] par la commande appropriée et les arguments de votre application CLI.
 
@@ -103,53 +115,3 @@ Remplacez your-command et [args] par la commande appropriée et les arguments de
         * `--email`: Nouvelle adresse e-mail de l'utilisateur.
         * `--password`: Nouveau mot de passe de l'utilisateur.
         * `--name`: Nouveau nom complet de l'utilisateur.
-
-### Exemples d'utilisation de la CLI
-
-## Se connecter en tant qu'utilisateur
-
-```bash
-docker-compose exec cli login --email "email@example.com" --password "your-password"
-```
-
-## Actualiser un JWT d'authentification
-
-```bash
-docker-compose exec cli refresh --refresh_token "your-refresh-token"
-```
-
-## Se déconnecter et supprimer un JWT d'authentification et un jeton d'actualisation
-
-```bash
-docker-compose exec cli logout --access_token "your-access-token" --refresh_token "your-refresh-token"
-```
-
-## Se déconnecter et supprimer un JWT d'authentification et un jeton d'actualisation
-
-```bash
-docker-compose exec cli logout --access_token "your-access-token" --refresh_token "your-refresh-token"
-```
-
-## Lister les utilisateurs
-
-```bash
-docker-compose exec cli users list
-```
-
-## Récupérer un utilisateur spécifique
-
-```bash
-docker-compose exec cli users get user_id
-```
-
-## Créer un nouvel utilisateur
-
-```bash
-docker-compose exec cli users create --email newuser@example.com --password new_password --name "New User"
-```
-
-## Mettre à jour un utilisateur existant
-
-```bash
-docker-compose exec cli users update user_id --email updateduser@example.com --password updated_password --name "Updated User"
-```
