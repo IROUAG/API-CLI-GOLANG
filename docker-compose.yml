@@ -13,6 +13,8 @@ services:
       - db
     env_file:
       - .env
+    networks:
+      - network-project
 
   db:
     container_name: db
@@ -27,6 +29,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - network-project
 
   cli:
     container_name: cli
@@ -35,6 +39,11 @@ services:
       - app
       - db
     tty: true
+    networks:
+      - network-project
 
 volumes:
   db_data:
+
+networks:
+  network-project:

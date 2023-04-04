@@ -1,23 +1,23 @@
-# Utilisez une image Golang pour construire votre application
-FROM golang:1.20 as builder
+# Build stage
+FROM golang:1.17.2-alpine3.14 AS build
 
-# Set the working directory
-WORKDIR /cli
+WORKDIR /app
 
-# Copiez les fichiers nécessaires pour construire l'application
-COPY . ./
+COPY . .
 
-# Download the dependencies
 RUN go mod download
 
-# Build the app
-RUN CGO_ENABLED=0 GOOS=linux go build -o cli .
+RUN go build -o app .
 
-# Second stage: create a minimal image to deploy the app
+# Final stage
+
 FROM alpine:3.14
 
-# Copy the binary from the builder stage
-COPY --from=builder /cli/cli /usr/local/bin/cli
+WORKDIR /app
 
-# Set the app as the entrypoint
-CMD ["./cli"]
+COPY --from=build /app/app .
+
+ENTRYPOINT ["./app"]
+
+
+
