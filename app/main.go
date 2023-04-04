@@ -85,9 +85,6 @@ func main() {
 	}
 	defer db.Close()
 
-	// Migrate the schema
-	db.AutoMigrate(&User{}, &AuthToken{}, &RefreshToken{}, &Role{}, &Group{})
-
 	// Set up Gin router
 	router := gin.Default()
 
