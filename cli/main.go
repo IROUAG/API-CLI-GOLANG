@@ -17,7 +17,7 @@ func main() {
 		Use:   "app",
 		Short: "Une CLI pour interagir avec l'API",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("Use a subcommand to interact with the API. Run 'app --help' for usage.")
+			fmt.Println("Use a subcommand to interact with the API. Run ' --help' for usage.")
 		},
 	}
 
@@ -266,7 +266,7 @@ func login(cmd *cobra.Command, args []string) {
 	headers := map[string]string{
 		"Content-Type": "application/json",
 	}
-	responseBody, err := sendRequest("POST", "http://localhost:8080/login", headers, jsonPayload)
+	responseBody, err := sendRequest("POST", "http://app:8080/login", headers, jsonPayload)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -280,7 +280,7 @@ func refresh(cmd *cobra.Command, args []string) {
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %s", refreshToken),
 	}
-	responseBody, err := sendRequest("POST", "http://localhost:8080/refresh", headers, nil)
+	responseBody, err := sendRequest("POST", "http://app:8080/refresh", headers, nil)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -295,7 +295,7 @@ func logout(cmd *cobra.Command, args []string) {
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %s", accessToken),
 	}
-	responseBody, err := sendRequest("DELETE", fmt.Sprintf("http://localhost:8080/logout/%s", refreshToken), headers, nil)
+	responseBody, err := sendRequest("DELETE", fmt.Sprintf("http://app:8080/logout/%s", refreshToken), headers, nil)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -304,7 +304,7 @@ func logout(cmd *cobra.Command, args []string) {
 }
 
 func listUsers(cmd *cobra.Command, args []string) {
-	responseBody, err := sendRequest("GET", "http://localhost:8080/users/", nil, nil)
+	responseBody, err := sendRequest("GET", "http://app:8080/users/", nil, nil)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -328,7 +328,7 @@ func updateUser(cmd *cobra.Command, args []string) {
 	headers := map[string]string{
 		"Content-Type": "application/json",
 	}
-	responseBody, err := sendRequest("PUT", fmt.Sprintf("http://localhost:8080/users/%s", userId), headers, jsonPayload)
+	responseBody, err := sendRequest("PUT", fmt.Sprintf("http://app:8080/users/%s", userId), headers, jsonPayload)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -338,7 +338,7 @@ func updateUser(cmd *cobra.Command, args []string) {
 
 func getUser(cmd *cobra.Command, args []string) {
 	userId := args[0]
-	responseBody, err := sendRequest("GET", fmt.Sprintf("http://localhost:8080/users/%s", userId), nil, nil)
+	responseBody, err := sendRequest("GET", fmt.Sprintf("http://app:8080/users/%s", userId), nil, nil)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -361,7 +361,7 @@ func createUser(cmd *cobra.Command, args []string) {
 	headers := map[string]string{
 		"Content-Type": "application/json",
 	}
-	responseBody, err := sendRequest("POST", "http://localhost:8080/users/", headers, jsonPayload)
+	responseBody, err := sendRequest("POST", "http://app:8080/users/", headers, jsonPayload)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -370,7 +370,7 @@ func createUser(cmd *cobra.Command, args []string) {
 
 func deleteUser(cmd *cobra.Command, args []string) {
 	userId := args[0]
-	responseBody, err := sendRequest("DELETE", fmt.Sprintf("http://localhost:8080/users/%s", userId), nil, nil)
+	responseBody, err := sendRequest("DELETE", fmt.Sprintf("http://app:8080/users/%s", userId), nil, nil)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -379,7 +379,7 @@ func deleteUser(cmd *cobra.Command, args []string) {
 }
 
 func listRoles(cmd *cobra.Command, args []string) {
-	responseBody, err := sendRequest("GET", "http://localhost:8080/roles/", nil, nil)
+	responseBody, err := sendRequest("GET", "http://app:8080/roles/", nil, nil)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -389,7 +389,7 @@ func listRoles(cmd *cobra.Command, args []string) {
 
 func getRole(cmd *cobra.Command, args []string) {
 	roleId := args[0]
-	responseBody, err := sendRequest("GET", fmt.Sprintf("http://localhost:8080/roles/%s", roleId), nil, nil)
+	responseBody, err := sendRequest("GET", fmt.Sprintf("http://app:8080/roles/%s", roleId), nil, nil)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -410,7 +410,7 @@ func createRole(cmd *cobra.Command, args []string) {
 	headers := map[string]string{
 		"Content-Type": "application/json",
 	}
-	responseBody, err := sendRequest("POST", "http://localhost:8080/roles", headers, jsonPayload)
+	responseBody, err := sendRequest("POST", "http://app:8080/roles", headers, jsonPayload)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -432,7 +432,7 @@ func updateRole(cmd *cobra.Command, args []string) {
 	headers := map[string]string{
 		"Content-Type": "application/json",
 	}
-	endpoint := fmt.Sprintf("http://localhost:8080/roles/%s", roleID)
+	endpoint := fmt.Sprintf("http://app:8080/roles/%s", roleID)
 	responseBody, err := sendRequest("PUT", endpoint, headers, jsonPayload)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
@@ -443,7 +443,7 @@ func updateRole(cmd *cobra.Command, args []string) {
 
 func deleteRole(cmd *cobra.Command, args []string) {
 	roleId := args[0]
-	responseBody, err := sendRequest("DELETE", fmt.Sprintf("http://localhost:8080/roles/%s", roleId), nil, nil)
+	responseBody, err := sendRequest("DELETE", fmt.Sprintf("http://app:8080/roles/%s", roleId), nil, nil)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -452,7 +452,7 @@ func deleteRole(cmd *cobra.Command, args []string) {
 }
 
 func listGroups(cmd *cobra.Command, args []string) {
-	responseBody, err := sendRequest("GET", "http://localhost:8080/groups/", nil, nil)
+	responseBody, err := sendRequest("GET", "http://app:8080/groups/", nil, nil)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -462,7 +462,7 @@ func listGroups(cmd *cobra.Command, args []string) {
 
 func getGroup(cmd *cobra.Command, args []string) {
 	groupId := args[0]
-	responseBody, err := sendRequest("GET", fmt.Sprintf("http://localhost:8080/roles/%s", groupId), nil, nil)
+	responseBody, err := sendRequest("GET", fmt.Sprintf("http://app:8080/roles/%s", groupId), nil, nil)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -472,7 +472,7 @@ func getGroup(cmd *cobra.Command, args []string) {
 
 func deleteGroup(cmd *cobra.Command, args []string) {
 	groupId := args[0]
-	responseBody, err := sendRequest("DELETE", fmt.Sprintf("http://localhost:8080/roles/%s", groupId), nil, nil)
+	responseBody, err := sendRequest("DELETE", fmt.Sprintf("http://app:8080/roles/%s", groupId), nil, nil)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -493,7 +493,7 @@ func createGroup(cmd *cobra.Command, args []string) {
 	headers := map[string]string{
 		"Content-Type": "application/json",
 	}
-	responseBody, err := sendRequest("POST", "http://localhost:8080/groups", headers, jsonPayload)
+	responseBody, err := sendRequest("POST", "http://app:8080/groups", headers, jsonPayload)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -515,7 +515,7 @@ func updateGroup(cmd *cobra.Command, args []string) {
 	headers := map[string]string{
 		"Content-Type": "application/json",
 	}
-	endpoint := fmt.Sprintf("http://localhost:8080/groups/%s", groupID)
+	endpoint := fmt.Sprintf("http://app:8080/groups/%s", groupID)
 	responseBody, err := sendRequest("PUT", endpoint, headers, jsonPayload)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
