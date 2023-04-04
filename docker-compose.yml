@@ -35,7 +35,6 @@ services:
   cli:
      container_name: cli
      build: ./cli
-     restart: always
      image: cli:project-golang
      depends_on:
        - app
