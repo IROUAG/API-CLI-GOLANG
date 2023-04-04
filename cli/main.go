@@ -14,7 +14,7 @@ import (
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "app",
+		Use:   "cli",
 		Short: "Une CLI pour interagir avec l'API",
 	}
 
