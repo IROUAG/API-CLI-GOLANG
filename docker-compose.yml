@@ -36,6 +36,7 @@ services:
      container_name: cli
      build: ./cli
      image: cli:project-golang
+     command: ["/bin/bash"]
      depends_on:
        - app
        - db
