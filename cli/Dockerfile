@@ -17,7 +17,7 @@ WORKDIR /app
 
 COPY --from=build /app/cli .
 
-ENTRYPOINT ["./app"]
+ENTRYPOINT ["./cli"]
 
 
 
