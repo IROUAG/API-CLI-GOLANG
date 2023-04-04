@@ -22,12 +22,12 @@ func main() {
 		},
 	}
 
-	serveCmd := &cobra.Command{
-		Use:   "serve",
+	serverCmd := &cobra.Command{
+		Use:   "server",
 		Short: "Run the CLI as a server",
-		Run:   serve,
+		Run:   server,
 	}
-	rootCmd.AddCommand(serveCmd)
+	rootCmd.AddCommand(serverCmd)
 
 	// Login
 	loginCmd := &cobra.Command{
@@ -282,7 +282,7 @@ func login(cmd *cobra.Command, args []string) {
 	fmt.Println(string(responseBody))
 }
 
-func serve(cmd *cobra.Command, args []string) {
+func server(cmd *cobra.Command, args []string) {
 	for {
 		time.Sleep(time.Hour)
 	}

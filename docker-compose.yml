@@ -36,7 +36,7 @@ services:
      container_name: cli
      build: ./cli
      image: cli
-     command: ["serve"]
+     command: ["server"]
      depends_on:
        - app
        - db
