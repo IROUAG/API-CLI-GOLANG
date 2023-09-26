@@ -15,12 +15,7 @@ This repository contains a Golang API with a PostgreSQL database and a CLI to in
 
 ## How to build and run the API and CLI
 
-1. Clone the repository:
-
-```bash
-git clone https://gitlab.com/your-username/golang_project_ilies_sylvain.git
-cd golang_project_ilies_sylvain
-```
+1. Clone the repository.
 
 2. Build and run the application using Docker Compose:
 
