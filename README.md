@@ -1,4 +1,4 @@
-# Golang Project:
+# API & CLI in Golang:
 
 This repository contains a Golang API with a PostgreSQL database and a CLI to interact with the API, organized as follows:
 
